@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
+
+
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
 
@@ -18,6 +20,7 @@ export default function TestPage() {
   const [studentName, setStudentName] = useState("");
   const [rollNumber, setRollNumber] = useState("");
   const [selectedTest, setSelectedTest] = useState(null); // holds test object
+const [paymentCompleted, setPaymentCompleted] = useState(false); // Razorpay payment flag
   const [tests, setTests] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
@@ -61,11 +64,7 @@ export default function TestPage() {
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
-  const handleStartTest = () => {
-    if (!studentName.trim() || !rollNumber.trim() || !selectedTest) {
-      alert("Please fill all fields and select a test!");
-      return;
-    }
+  function startTestDirectly() {
     // Use test's questions, shuffle order and options
     const shuffledQuestions = shuffleArray(selectedTest.questions || []).map(q => ({
       ...q,
@@ -79,7 +78,20 @@ export default function TestPage() {
     setAnswers({});
     setScore(null);
     setIsSubmitted(false);
-  };
+  }
+
+  async function handleStartTest() {
+    if (!studentName.trim() || !rollNumber.trim() || !selectedTest) {
+      alert("Please fill all fields and select a test!");
+      return;
+    }
+    // If test is paid, ensure payment is done
+    if (selectedTest?.isPaid && !paymentCompleted) {
+      await handlePayAndStart();
+      return;
+    }
+    startTestDirectly();
+  }
 
   const handleAnswer = (qIndex, option) => {
     if (isSubmitted) return;
@@ -187,13 +199,16 @@ const handleSubmit = async () => {
                   <option key={t._id} value={t._id}>{t.title} ({t.subject})</option>
                 ))}
               </select>
+                {selectedTest && (
+                  <p className="mt-2 text-sm text-gray-400">{selectedTest.isPaid ? `Paid Test: ₹${selectedTest.price}` : 'Free Test'}</p>
+                )}
             </div>
 
             <button
               onClick={handleStartTest}
               className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 rounded-xl font-bold text-lg transition transform hover:scale-105"
             >
-              Start Test
+              {selectedTest?.isPaid && !paymentCompleted ? `Pay ₹${selectedTest.price} & Start Test` : "Start Test"}
             </button>
           </div>
         </motion.div>
@@ -201,9 +216,69 @@ const handleSubmit = async () => {
     );
   }
 
+  // Payment handling and direct start for paid tests
+  async function handlePayAndStart() {
+    try {
+      const res = await fetch('/api/payments/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: selectedTest.price * 100, testId: selectedTest._id }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Failed to create payment order. Please try again.');
+        return;
+      }
+      // Ensure Razorpay script is loaded
+      if (!window.Razorpay) {
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.async = true;
+        document.body.appendChild(script);
+        await new Promise((resolve) => {
+          script.onload = resolve;
+        });
+      }
+      const options = {
+        key: data.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY || 'rzp_test_dummy',
+        amount: data.amount,
+        currency: data.currency,
+        name: selectedTest.title,
+        description: selectedTest.subject,
+        order_id: data.orderId,
+        handler: function (response) {
+          setPaymentCompleted(true);
+          // Start the test directly!
+          const shuffledQuestions = shuffleArray(selectedTest.questions || []).map(q => ({
+            ...q,
+            options: shuffleArray(q.options)
+          }));
+          setQuestions(shuffledQuestions);
+          const duration = selectedTest.duration || 20;
+          setTimeLeft(duration * 60);
+          setCurrentQIndex(0);
+          setAnswers({});
+          setScore(null);
+          setIsSubmitted(false);
+        },
+        prefill: {
+          name: studentName,
+          email: '',
+        },
+        theme: { color: '#3399cc' },
+      };
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error('Payment flow error:', err);
+      alert('Payment flow failed. Please try again.');
+    }
+  }
+
   // Test Running or Submitted
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-blue-950 text-white py-10 px-4">
+    <main className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-blue-950 text-white py-28 px-4">
+
       {/* Header */}
       <div className="max-w-4xl mx-auto mb-8 text-center">
         <h1 className="text-4xl font-bold mb-2">{studentName} - {selectedTest ? selectedTest.subject : ''}</h1>

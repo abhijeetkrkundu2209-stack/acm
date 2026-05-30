@@ -38,6 +38,14 @@ const TestSchema = new mongoose.Schema(
       required: true,
       default: 20, // minutes
     },
+    price: {
+      type: Number,
+      default: 0,
+    },
+    isPaid: {
+      type: Boolean,
+      default: false,
+    },
     questions: {
       type: [QuestionSchema],
       validate: {

@@ -7,7 +7,7 @@ export async function GET() {
   try {
     await dbConnect();
     const tests = await Test.find({ isActive: true })
-      .select("title subject duration questions")
+      .select("title subject duration questions isPaid price")
       .sort({ createdAt: -1 });
 
     return NextResponse.json({ tests }, { status: 200 });

@@ -26,10 +26,14 @@ export default function AdminDashboard() {
   const { user, signout } = useAuth();
 
   // Real data states
+// Duplicate users state removed
   const [users, setUsers] = useState([]);
   const [tests, setTests] = useState([]);
+  const [submissions, setSubmissions] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [loadingTests, setLoadingTests] = useState(true);
+  const [loadingSubmissions, setLoadingSubmissions] = useState(true);
+
 
   // UI states
   const [activeTab, setActiveTab] = useState("overview"); // overview | users | tests
@@ -41,6 +45,7 @@ export default function AdminDashboard() {
   const [testTitle, setTestTitle] = useState("");
   const [testSubject, setTestSubject] = useState("");
   const [testDuration, setTestDuration] = useState(20);
+  const [testPrice, setTestPrice] = useState("");
   const [questions, setQuestions] = useState([
     { question: "", options: ["", "", "", ""], answer: "" },
   ]);
@@ -159,6 +164,15 @@ export default function AdminDashboard() {
       return;
     }
 
+    // All tests created by admin are paid
+    const finalPrice = Number(testPrice);
+
+    if (!finalPrice || finalPrice <= 0) {
+      setCreateError("Tests must have a price greater than ₹0.");
+      return;
+    }
+
+    // Validate questions
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
       if (!q.question) {
@@ -185,6 +199,8 @@ export default function AdminDashboard() {
           title: testTitle,
           subject: testSubject,
           duration: testDuration,
+          price: finalPrice,
+          isPaid: true,
           questions,
         }),
       });
@@ -196,9 +212,11 @@ export default function AdminDashboard() {
       }
 
       setCreateSuccess("Test created successfully!");
+      // Reset all form fields
       setTestTitle("");
       setTestSubject("");
       setTestDuration(20);
+      setTestPrice("");
       setQuestions([{ question: "", options: ["", "", "", ""], answer: "" }]);
       fetchTests();
 
@@ -210,6 +228,8 @@ export default function AdminDashboard() {
       setCreateError("Network error. Please try again.");
     }
   };
+
+
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -531,6 +551,15 @@ export default function AdminDashboard() {
                         <Clock size={14} />
                         {test.duration || 20} mins
                       </span>
+                      <span className="flex items-center gap-1">
+                        {test.isPaid ? (
+                          <>
+                            <span className="text-emerald-400 mr-1">Paid</span>₹{test.price}
+                          </>
+                        ) : (
+                          <span className="text-gray-400">Free</span>
+                        )}
+                      </span>
                     </div>
 
                     <div className="mt-3 text-xs text-gray-500">
@@ -541,6 +570,39 @@ export default function AdminDashboard() {
               </div>
             )}
           </div>
+        )}
+        {/* Submissions Tab */}
+        {activeTab === "submissions" && (
+          <motion.div variants={containerVariants} initial="hidden" animate="visible" className="flex flex-col gap-8">
+            {/* Submissions Table */}
+            {loadingSubmissions ? (
+              <div className="flex items-center justify-center py-20 text-gray-500">
+                <RefreshCw className="animate-spin mr-3" size={20} />
+                Loading submissions...
+              </div>
+            ) : submissions.length === 0 ? (
+              <div className="text-center py-20 text-gray-500">No submissions found.</div>
+            ) : (
+              <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden">
+                <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 bg-white/5 text-xs uppercase font-bold tracking-wider text-gray-500 border-b border-white/10">
+                  <div className="col-span-3">Student</div>
+                  <div className="col-span-2">Roll No</div>
+                  <div className="col-span-3">Subject</div>
+                  <div className="col-span-2">Score</div>
+                  <div className="col-span-2">Date</div>
+                </div>
+                {submissions.map((sub) => (
+                  <div key={sub._id} className="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 px-6 py-4 border-b border-white/5 hover:bg-white/5 transition-colors">
+                    <div className="col-span-3 font-semibold text-gray-200">{sub.studentName}</div>
+                    <div className="col-span-2 text-gray-400">{sub.rollNumber}</div>
+                    <div className="col-span-3 text-gray-400">{sub.subject}</div>
+                    <div className="col-span-2 text-gray-400">{sub.score}/{sub.totalQuestions}</div>
+                    <div className="col-span-2 text-gray-500">{new Date(sub.createdAt).toLocaleDateString()}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
         )}
       </main>
 
@@ -588,9 +650,6 @@ export default function AdminDashboard() {
                     className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors text-sm"
                     required
                   />
-                </div>
-                <div className="md:col-span-1">
-                  <label className="text-gray-400 text-xs font-semibold mb-1 block">Subject</label>
                   <input
                     type="text"
                     placeholder="e.g. Data Structures"
@@ -611,7 +670,18 @@ export default function AdminDashboard() {
                     className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors text-sm"
                   />
                 </div>
-              </div>
+                <div className="md:col-span-1">
+                  <label className="text-gray-400 text-xs font-semibold mb-1 block">Price (₹)</label>
+                  <input
+                    type="number"
+                    min={1}
+                    placeholder="Enter price e.g. 99"
+                    value={testPrice}
+                    onChange={(e) => setTestPrice(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 transition-colors text-sm"
+                    required
+                  />
+                </div>              </div>
 
               {/* Questions Section */}
               <div className="border-t border-white/10 pt-4">

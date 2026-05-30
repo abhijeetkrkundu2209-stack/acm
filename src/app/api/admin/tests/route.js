@@ -44,7 +44,6 @@ export async function POST(req) {
     const secret = new TextEncoder().encode(
       process.env.JWT_SECRET || "fallback-secret-minimum-32-chars-long"
     );
-
     const { payload } = await jwtVerify(token, secret);
     if (payload.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -52,14 +51,25 @@ export async function POST(req) {
 
     await dbConnect();
     const body = await req.json();
-    const { title, subject, duration, questions } = body;
+    const { title, subject, duration, questions, price } = body;
 
+    // Validate required fields
     if (!title || !subject || !questions || questions.length === 0) {
       return NextResponse.json(
         { error: "Title, subject, and at least one question are required" },
         { status: 400 }
       );
     }
+
+    // All tests must be paid. Validate that price is greater than 0.
+    const numericPrice = Number(price) || 0;
+    if (numericPrice <= 0) {
+      return NextResponse.json(
+        { error: "Tests must be paid and have a price greater than ₹0." },
+        { status: 400 }
+      );
+    }
+    const finalIsPaid = true;
 
     // Validate each question
     for (const q of questions) {
@@ -82,21 +92,19 @@ export async function POST(req) {
       subject,
       duration: duration || 20,
       questions,
+      price: numericPrice,
+      isPaid: finalIsPaid,
       createdBy: payload.userId,
     });
 
     await test.save();
-
     return NextResponse.json(
       { message: "Test created successfully", test },
       { status: 201 }
     );
   } catch (error) {
     console.error("Create test error:", error);
-    return NextResponse.json(
-      { error: "Something went wrong" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
 
