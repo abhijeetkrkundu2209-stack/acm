@@ -1,0 +1,26 @@
+[
+  {
+    "_id": "9b4f090d-2ea5-43a0-8411-0a6033ee7d87",
+    "title": "new",
+    "subject": "Database",
+    "duration": 20,
+    "price": 100,
+    "isPaid": true,
+    "questions": [
+      {
+        "question": "test",
+        "options": [
+          "3",
+          "5",
+          "4",
+          "7"
+        ],
+        "answer": "7"
+      }
+    ],
+    "isActive": true,
+    "createdBy": "38df14f7-0ee5-46fc-b418-3f23adcf0c4e",
+    "createdAt": "2026-06-07T18:40:03.506Z",
+    "updatedAt": "2026-06-07T18:40:03.506Z"
+  }
+]

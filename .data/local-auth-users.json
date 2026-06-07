@@ -1,0 +1,20 @@
+[
+  {
+    "_id": "f668d9bd-c3c9-490c-b36a-e8f1f320c124",
+    "name": "hit.princerajtest@gmail.com",
+    "email": "hit.princerajtest@gmail.com",
+    "password": "$2b$12$6s/uaBLUkPzjruqYt42u5uIO3wKAGr02YRh2dtPLPNCVZgUpnp4jy",
+    "role": "user",
+    "createdAt": "2026-06-07T18:00:36.640Z",
+    "updatedAt": "2026-06-07T18:00:36.640Z"
+  },
+  {
+    "_id": "38df14f7-0ee5-46fc-b418-3f23adcf0c4e",
+    "name": "admin",
+    "email": "admin@acm.org",
+    "password": "$2b$12$P.e7iZTi8MThLsnFpnqEzuZX6OoI9EIcFmSGhbOiBjViYRvz9khrm",
+    "role": "admin",
+    "createdAt": "2026-06-07T18:29:53.864Z",
+    "updatedAt": "2026-06-07T18:29:53.864Z"
+  }
+]

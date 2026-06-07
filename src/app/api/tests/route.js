@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/dbConnect";
-import Test from "@/models/Test";
+import { findPublicTests } from "@/lib/testAccess";
 
 // Public endpoint - fetch all active tests (no auth required)
 export async function GET() {
   try {
-    await dbConnect();
-    const tests = await Test.find({ isActive: true })
-      .select("title subject duration questions isPaid price")
-      .sort({ createdAt: -1 });
+    const tests = await findPublicTests();
 
     return NextResponse.json({ tests }, { status: 200 });
   } catch (error) {

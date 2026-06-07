@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/dbConnect";
-import User from "@/models/User";
+import { findAuthUserByEmail, createAuthUser } from "@/lib/authUsers";
 import bcrypt from "bcryptjs";
 
 export async function POST(req) {
   try {
-    await dbConnect();
     const { name, email, password } = await req.json();
 
     // Validation
@@ -24,7 +22,7 @@ export async function POST(req) {
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await findAuthUserByEmail(email);
     if (existingUser) {
       return NextResponse.json(
         { error: "A user with this email already exists" },
@@ -40,14 +38,12 @@ export async function POST(req) {
     const role = isAdmin ? "admin" : "user";
 
     // Create user
-    const newUser = new User({
+    await createAuthUser({
       name,
       email,
       password: hashedPassword,
       role,
     });
-
-    await newUser.save();
 
     return NextResponse.json(
       { message: "User registered successfully" },

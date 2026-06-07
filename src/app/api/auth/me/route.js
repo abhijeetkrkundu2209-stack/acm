@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/dbConnect";
-import User from "@/models/User";
+import { findAuthUserById } from "@/lib/authUsers";
 import { jwtVerify } from "jose";
 
 export async function GET(req) {
@@ -37,9 +36,7 @@ export async function GET(req) {
       );
     }
 
-    // Connect to database to fetch latest details
-    await dbConnect();
-    const user = await User.findById(payload.userId).select("-password");
+    const user = await findAuthUserById(payload.userId);
 
     if (!user) {
       return NextResponse.json(
@@ -48,13 +45,15 @@ export async function GET(req) {
       );
     }
 
+    const safeUser = user.toObject ? user.toObject() : user;
+
     return NextResponse.json(
       {
         user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role || "user",
+          id: safeUser._id,
+          name: safeUser.name,
+          email: safeUser.email,
+          role: safeUser.role || "user",
         },
       },
       { status: 200 }

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/dbConnect";
-import TestSubmission from "@/models/TestSubmission";
+import { createSubmission } from "@/lib/submissionAccess";
 import { jwtVerify } from "jose";
 
 export async function POST(req) {
@@ -15,7 +14,6 @@ export async function POST(req) {
       createdBy = payload.userId || null;
     }
 
-    await dbConnect();
     const body = await req.json();
     const { studentName, rollNumber, subject, answers, score, totalQuestions } = body;
 
@@ -23,7 +21,7 @@ export async function POST(req) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const submission = new TestSubmission({
+    const submission = await createSubmission({
       studentName,
       rollNumber,
       subject,
@@ -32,8 +30,6 @@ export async function POST(req) {
       totalQuestions,
       createdBy,
     });
-
-    await submission.save();
 
     return NextResponse.json({ message: "Submission saved", submission }, { status: 201 });
   } catch (error) {

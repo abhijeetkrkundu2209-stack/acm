@@ -55,10 +55,13 @@ const Navbar = () => {
             <div className="flex items-center gap-4 ml-4 pl-4 border-l border-white/20">
               {user ? (
                 <>
-                  <div className="flex items-center gap-2 text-white/90 bg-white/10 px-4 py-2 rounded-xl border border-white/10">
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-2 text-white/90 bg-white/10 px-4 py-2 rounded-xl border border-white/10 hover:bg-white/15 transition"
+                  >
                     <UserIcon size={16} className="text-blue-400" />
                     <span className="text-sm font-semibold max-w-[120px] truncate">{user.name}</span>
-                  </div>
+                  </Link>
                   <button
                     onClick={signout}
                     className="flex items-center gap-2 text-white/90 hover:text-red-400 bg-red-600/20 hover:bg-red-600/30 px-4 py-2 rounded-xl border border-red-500/20 transition cursor-pointer"
@@ -115,10 +118,14 @@ const Navbar = () => {
             <div className="flex flex-col items-center gap-4 w-full px-6 pt-4 border-t border-white/10">
               {user ? (
                 <>
-                  <div className="flex items-center gap-2 text-white/90 bg-white/10 px-6 py-2.5 rounded-xl border border-white/10 w-full justify-center">
+                  <Link
+                    href="/profile"
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center gap-2 text-white/90 bg-white/10 px-6 py-2.5 rounded-xl border border-white/10 w-full justify-center hover:bg-white/15 transition"
+                  >
                     <UserIcon size={18} className="text-blue-400" />
                     <span className="text-base font-semibold">{user.name}</span>
-                  </div>
+                  </Link>
                   <button
                     onClick={() => {
                       setIsOpen(false);

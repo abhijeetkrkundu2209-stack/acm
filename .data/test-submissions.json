@@ -1,0 +1,16 @@
+[
+  {
+    "_id": "9b623df4-fbab-405d-8bd6-663b366ba4eb",
+    "createdAt": "2026-06-07T18:40:51.072Z",
+    "updatedAt": "2026-06-07T18:40:51.072Z",
+    "studentName": "123456",
+    "rollNumber": "sdfghjkl",
+    "subject": "Database",
+    "answers": {
+      "0": "7"
+    },
+    "score": 1,
+    "totalQuestions": 1,
+    "createdBy": "38df14f7-0ee5-46fc-b418-3f23adcf0c4e"
+  }
+]
