@@ -48,15 +48,17 @@ export async function POST(req) {
       reply_to: email,
     };
 
+    const emailOptions = {
+      publicKey: process.env.EMAILJS_PUBLIC_KEY,
+      privateKey: process.env.EMAILJS_PRIVATE_KEY,
+    };
+
     await emailjs.send(
       process.env.EMAILJS_SERVICE_ID,
       process.env.EMAILJS_TEMPLATE_ID,
       templateParams,
-      {
-        publicKey: process.env.EMAILJS_PUBLIC_KEY,
-        privateKey: process.env.EMAILJS_PRIVATE_KEY,
-      }
-    });
+      emailOptions
+    );
 
     return NextResponse.json(
       { message: "Your message has been sent to ACM admin" },
