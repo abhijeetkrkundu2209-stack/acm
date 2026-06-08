@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
+import ChatbotWidget from "@/components/chatbot/ChatbotWidget";
 
 // ---------------- Images ----------------
 const marqueeImages = [
@@ -16,7 +18,7 @@ const marqueeImages = [
 ];
 
 const teamMembers = [
-  { name: "Dr. Soumen Paul", img: "hod_img.jpg", gradient: "from-pink-500 to-purple-600" },
+  { name: "Dr. Arup Roy", img: "hod.jpeg", gradient: "from-pink-500 to-purple-600" },
   { name: "Mr Manasija Bhattacharya", img: "mb_img.jpeg", gradient: "from-blue-500 to-cyan-600" },
   { name: "Moumita Ghosh", img: "moumita_img.jpg", gradient: "from-green-500 to-emerald-600" },
   { name: "Sk. Sahnawaj", img: "sehnwaj_img.jpg", gradient: "from-orange-500 to-red-600" },
@@ -152,11 +154,14 @@ export default function ACMPage() {
               animate="visible"
               className="mt-10 flex flex-col sm:flex-row gap-6 justify-center"
             >
-              <button className="group px-10 py-4 bg-gradient-to-r from-blue-600 to-purple-700 rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-blue-500/50 transition-all mx-auto sm:mx-0">
+              <Link
+                href="/join-acm"
+                className="group inline-flex items-center justify-center px-10 py-4 bg-gradient-to-r from-blue-600 to-purple-700 rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-blue-500/50 transition-all mx-auto sm:mx-0"
+              >
                 Join ACM Now
                 <span className="inline-block ml-2 group-hover:translate-x-2 transition-transform">→</span>
-              </button>
-
+              </Link> 
+              
               <button
                 onClick={() => (window.location.href = "/test")}
                 className="px-10 py-4 border-2 border-white/30 rounded-2xl text-lg hover:bg-white/10 transition-all"
@@ -281,9 +286,12 @@ export default function ACMPage() {
           >
             <h2 className="text-5xl font-black mb-6">Ready to Shape the Future?</h2>
             <p className="text-xl text-gray-300 mb-10">Join the most active tech community in HIT</p>
-            <button className="px-12 py-5 bg-gradient-to-r from-blue-600 to-purple-700 rounded-2xl text-xl font-bold hover:scale-110 transition-transform">
+            <Link
+              href="/join-acm"
+              className="inline-flex px-12 py-5 bg-gradient-to-r from-blue-600 to-purple-700 rounded-2xl text-xl font-bold hover:scale-110 transition-transform"
+            >
               Become a Member Today
-            </button>
+            </Link>
           </motion.div>
         </section>
 
@@ -292,6 +300,8 @@ export default function ACMPage() {
           <p className="text-gray-500">© {new Date().getFullYear()} ACM Student Chapter • HIT Haldia</p>
         </footer>
       </main>
+
+      <ChatbotWidget />
 
       {/* Marquee Animation */}
       <style jsx>{`

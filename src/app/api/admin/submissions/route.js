@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/dbConnect";
-import TestSubmission from "@/models/TestSubmission";
+import { findAllSubmissions } from "@/lib/submissionAccess";
 import { jwtVerify } from "jose";
 
 export async function GET(req) {
@@ -17,10 +16,7 @@ export async function GET(req) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    await dbConnect();
-    const submissions = await TestSubmission.find({})
-      .populate("createdBy", "name email role")
-      .sort({ createdAt: -1 });
+    const submissions = await findAllSubmissions();
 
     return NextResponse.json({ submissions }, { status: 200 });
   } catch (error) {

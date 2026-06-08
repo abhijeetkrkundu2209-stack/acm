@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/dbConnect";
-import Test from "@/models/Test";
+import { createTest, deleteTest, findAdminTests } from "@/lib/testAccess";
 import { jwtVerify } from "jose";
 
 // GET all tests
@@ -20,8 +19,7 @@ export async function GET(req) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    await dbConnect();
-    const tests = await Test.find({}).sort({ createdAt: -1 });
+    const tests = await findAdminTests();
 
     return NextResponse.json({ tests }, { status: 200 });
   } catch (error) {
@@ -49,7 +47,6 @@ export async function POST(req) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    await dbConnect();
     const body = await req.json();
     const { title, subject, duration, questions, price } = body;
 
@@ -87,7 +84,7 @@ export async function POST(req) {
       }
     }
 
-    const test = new Test({
+    const test = await createTest({
       title,
       subject,
       duration: duration || 20,
@@ -96,8 +93,6 @@ export async function POST(req) {
       isPaid: finalIsPaid,
       createdBy: payload.userId,
     });
-
-    await test.save();
     return NextResponse.json(
       { message: "Test created successfully", test },
       { status: 201 }
@@ -132,8 +127,7 @@ export async function DELETE(req) {
       return NextResponse.json({ error: "Test ID is required" }, { status: 400 });
     }
 
-    await dbConnect();
-    const deleted = await Test.findByIdAndDelete(testId);
+    const deleted = await deleteTest(testId);
 
     if (!deleted) {
       return NextResponse.json({ error: "Test not found" }, { status: 404 });

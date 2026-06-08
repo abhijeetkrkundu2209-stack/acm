@@ -1,0 +1,18 @@
+[
+  {
+    "_id": "a0a7f6f4-4433-43d7-bcb3-a75c9dc00bc1",
+    "feeAmount": 10000,
+    "paymentStatus": "paid",
+    "razorpayOrderId": "order_Sypos6fMVSsVgj",
+    "razorpayPaymentId": "pay_Sypp6Uv4WNa3a7",
+    "razorpaySignature": "09a7e01d70ba667cf133b8300d1553a63dec85e52fe66c0428fc2559315350af",
+    "paidAt": "2026-06-07T18:09:16.888Z",
+    "createdAt": "2026-06-07T18:08:41.105Z",
+    "updatedAt": "2026-06-07T18:09:16.922Z",
+    "fullName": "Prince Raj",
+    "rollNumber": "1234567890",
+    "email": "ceoprinceraj@gmail.com",
+    "department": "ee",
+    "mobileNumber": "08907654678"
+  }
+]

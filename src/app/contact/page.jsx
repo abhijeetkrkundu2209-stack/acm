@@ -1,8 +1,49 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 
 const Page = () => {
+  const [form, setForm] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+
+  const handleChange = (field) => (event) => {
+    setForm((current) => ({ ...current, [field]: event.target.value }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setSuccess("");
+    setError("");
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send message");
+      }
+
+      setSuccess(data.message || "Message sent successfully");
+      setForm({ fullName: "", email: "", phone: "", message: "" });
+    } catch (submitError) {
+      setError(submitError.message || "Failed to send message");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-black text-white px-6 md:px-20 py-20">
 
@@ -25,6 +66,7 @@ const Page = () => {
 
         {/* Contact Form */}
         <motion.form
+          onSubmit={handleSubmit}
           initial={{ opacity: 0, x: -40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
@@ -34,10 +76,18 @@ const Page = () => {
             Send a Message
           </h2>
 
+          {(success || error) && (
+            <div className={`mb-6 rounded-xl border px-4 py-3 text-sm ${error ? "border-red-500/30 bg-red-500/10 text-red-300" : "border-green-500/30 bg-green-500/10 text-green-300"}`}>
+              {success || error}
+            </div>
+          )}
+
           <label className="block mb-4">
             <span className="text-white/80">Full Name</span>
             <input
               type="text"
+              value={form.fullName}
+              onChange={handleChange("fullName")}
               className="mt-2 w-full p-3 rounded-xl bg-black/40 border border-white/20 text-white focus:outline-none"
               placeholder="Enter your name"
             />
@@ -47,8 +97,21 @@ const Page = () => {
             <span className="text-white/80">Email</span>
             <input
               type="email"
+              value={form.email}
+              onChange={handleChange("email")}
               className="mt-2 w-full p-3 rounded-xl bg-black/40 border border-white/20 text-white focus:outline-none"
               placeholder="Enter your email"
+            />
+          </label>
+
+          <label className="block mb-4">
+            <span className="text-white/80">Phone Number</span>
+            <input
+              type="tel"
+              value={form.phone}
+              onChange={handleChange("phone")}
+              className="mt-2 w-full p-3 rounded-xl bg-black/40 border border-white/20 text-white focus:outline-none"
+              placeholder="Enter your phone number"
             />
           </label>
 
@@ -56,13 +119,19 @@ const Page = () => {
             <span className="text-white/80">Message</span>
             <textarea
               rows={5}
+              value={form.message}
+              onChange={handleChange("message")}
               className="mt-2 w-full p-3 rounded-xl bg-black/40 border border-white/20 text-white focus:outline-none resize-none"
               placeholder="Write your message..."
             ></textarea>
           </label>
 
-          <button className="mt-4 px-8 py-3 bg-blue-600 rounded-xl text-lg font-semibold hover:bg-blue-700 transition-all">
-            Send Message →
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-4 px-8 py-3 bg-blue-600 rounded-xl text-lg font-semibold hover:bg-blue-700 transition-all disabled:opacity-60"
+          >
+            {loading ? "Sending..." : "Send Message →"}
           </button>
         </motion.form>
 
